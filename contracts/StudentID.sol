@@ -113,10 +113,11 @@ contract StudentID is
         // Add 6 months to expiry
         // Update semester
         // Emit renewal event
-        require(_nextTokenId >= tokenId, "Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
         require(studentData[tokenId].isActive, "Student is not active");
+        require(!isExpired(tokenId), "Cannot renew expired ID");
 
-        studentData[tokenId].expiryDate += 6 * 30 days;
+        studentData[tokenId].expiryDate += (6 * 30 days);
         studentData[tokenId].semester += 1;
 
         emit StudentIDRenewed(tokenId, studentData[tokenId].expiryDate);
@@ -154,14 +155,25 @@ contract StudentID is
         // Burn token
         // Clean up mappings
         // Emit event
-        require(isExpired(tokenId), "ID is not expired");
-        require(ownerOf(tokenId) == msg.sender, "Only owner can burn");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        require(
+            isExpired(tokenId) || !studentData[tokenId].isActive,
+            "ID is not expired or inactive"
+        );
+
+        require(
+            ownerOf(tokenId) == msg.sender || owner() == msg.sender,
+            "Only token owner or contract owner can burn"
+        );
+
+        string memory nim = studentData[tokenId].nim;
+        address tokenOwner = ownerOf(tokenId);
+
+        delete nimToTokenId[nim];
+        delete addressToTokenId[tokenOwner];
+        delete studentData[tokenId];
 
         _burn(tokenId);
-
-        delete studentData[tokenId];
-        delete nimToTokenId[studentData[tokenId].nim];
-        delete addressToTokenId[ownerOf(tokenId)];
 
         emit ExpiredIDBurned(tokenId);
     }
@@ -188,14 +200,11 @@ contract StudentID is
     {
         // TODO: Lookup student by NIM
         require(bytes(nim).length > 0, "NIM cannot be empty");
-        require(nimToTokenId[nim] != 0, "NIM not found");
-
         tokenId = nimToTokenId[nim];
+
+        require(tokenId != 0, "NIM not found");
         owner = ownerOf(tokenId);
         data = studentData[tokenId];
-
-        require(data.isActive, "Student is not active");
-        require(data.expiryDate >= block.timestamp, "Student ID is expired");
 
         return (owner, tokenId, data);
     }
@@ -251,5 +260,12 @@ contract StudentID is
         delete studentData[tokenId];
         delete nimToTokenId[studentData[tokenId].nim];
         delete addressToTokenId[ownerOf(tokenId)];
+    }
+
+    function isValidID(uint256 tokenId) public view returns (bool) {
+        if (_ownerOf(tokenId) == address(0)) return false;
+
+        StudentData memory data = studentData[tokenId];
+        return data.isActive && !isExpired(tokenId);
     }
 }
