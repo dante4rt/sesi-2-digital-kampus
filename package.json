@@ -12,10 +12,21 @@
     "deploy:testnet": "npx hardhat run scripts/deploy-taskmanager.ts --network monadTestnet",
     "node": "npx hardhat node"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "web3",
+    "solidity",
+    "hardhat",
+    "blockdev",
+    "monad",
+    "workshop",
+    "certificate",
+    "badge",
+    "student",
+    "blockchain"
+  ],
+  "author": "dante4rt",
   "license": "ISC",
-  "description": "",
+  "description": "Smart contract workshop projects for BlockDevId x Monad Batch 3, including badges, certificates, student IDs, and task management.",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.13",
