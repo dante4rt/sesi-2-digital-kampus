@@ -1,0 +1,28 @@
+{
+  "name": "monad-taskmanager",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "test:watch": "hardhat test --watch",
+    "deploy:local": "npx hardhat run scripts/deploy-taskmanager.ts --network hardhat",
+    "deploy:testnet": "npx hardhat run scripts/deploy-taskmanager.ts --network monadTestnet",
+    "node": "npx hardhat node"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.13",
+    "hardhat": "^2.23.0",
+    "solidity-coverage": "^0.8.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.3.0"
+  }
+}
