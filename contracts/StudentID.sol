@@ -253,8 +253,8 @@ contract StudentID is
         return super.supportsInterface(interfaceId);
     }
 
-    function _burn(uint256 tokenId) internal override(ERC721) {
-        super._burn(tokenId);
+    function burn(uint256 tokenId) public override(ERC721Burnable) {
+        super.burn(tokenId);
 
         // TODO: Clean up student data when burning
         delete studentData[tokenId];

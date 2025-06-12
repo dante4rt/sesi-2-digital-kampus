@@ -29,6 +29,14 @@ contract CampusCredit is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
     mapping(address => bool) public isMerchant;
     mapping(address => string) public merchantName;
 
+    // Events
+    event TransferWithCashback(
+        address indexed from,
+        address indexed merchant,
+        uint256 amount,
+        uint256 cashback
+    );
+
     constructor() ERC20("Campus Credit", "CREDIT") {
         // TODO: Setup roles
         // Hint:
@@ -175,9 +183,11 @@ contract CampusCredit is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
         // Transfer main amount
         // Mint cashback to sender
         require(isMerchant[merchant], "Not a registered merchant");
-
         require(amount > 0, "Amount must be greater than zero");
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        require(
+            balanceOf(msg.sender) >= amount,
+            "Insufficient Campus Credit balance"
+        );
         require(
             dailySpendingLimit[msg.sender] > 0,
             "Daily limit not set for sender"
@@ -194,15 +204,11 @@ contract CampusCredit is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
         );
 
         spentToday[msg.sender] += amount;
-        dailySpendingLimit[msg.sender] -= amount;
-
-        (bool success, ) = merchant.call{value: amount}("");
-        require(success, "Transfer to merchant failed");
+        _transfer(msg.sender, merchant, amount);
 
         uint256 cashback = (amount * cashbackPercentage) / 100;
         _mint(msg.sender, cashback);
 
-        _update(msg.sender, merchant, amount);
-        lastSpendingReset[msg.sender] = block.timestamp;
+        emit TransferWithCashback(msg.sender, merchant, amount, cashback);
     }
 }
